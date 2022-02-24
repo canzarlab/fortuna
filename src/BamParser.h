@@ -572,8 +572,8 @@ class MT_Aligner
 			}
 			return;
 		}
-		//if (A->core.flag != 0 && A->core.flag != 16)
-		//	return;
+		if (A->core.flag != 0 && A->core.flag != 16)
+			return;
 
 		string frag = H->target_name[A->core.tid];
 		Transcript T = MT_Aligner::Frag2Trans(gtf, frag);

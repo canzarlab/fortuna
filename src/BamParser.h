@@ -229,6 +229,14 @@ class AltSeq
 	vector<Node*> &L, &R;
 };
 
+class FragRecord
+{
+	public:
+
+	vector<int> positions;
+	int count;
+};
+
 class AltData
 {
 	public:
@@ -236,10 +244,10 @@ class AltData
 	map<string, int> FragCount;
 	map<string, int> ReadCount;
 
-	map<pair<Node*, Node*>, vector<string>> AltHeader;
-	map<pair<Node*, Node*>, int> AltCount;
-	map<pair<Node*, Node*>, bool> AltProcessed;
-	map<pair<Node*, Node*>, string> AltGenes;
+	map<pair<vector<Node*>, vector<Node*>>, vector<string>> AltHeader;
+	map<pair<vector<Node*>, vector<Node*>>, int> AltCount;
+	map<pair<vector<Node*>, vector<Node*>>, bool> AltProcessed;
+	map<pair<vector<Node*>, vector<Node*>>, string> AltGenes;
 	
 	map<Node*, int> IntCount;
 
@@ -263,38 +271,38 @@ class AltData
 		++num_unmapped;
 	}
 	
-	bool HeaderExists(pair<Node*, Node*>& I)
+	bool HeaderExists(pair<vector<Node*>, vector<Node*>>& I)
 	{
 		lock_guard<mutex> lock(writer_lock);
 		return AltHeader.find(I) != AltHeader.end();
 	}
 
-	bool IsAltP(pair<Node*, Node*>& I)
+	bool IsAltP(pair<vector<Node*>, vector<Node*>>& I)
     {
         lock_guard<mutex> lock(writer_lock);
         return AltProcessed.find(I) != AltProcessed.end();
     }
 
-	bool GetAltP(pair<Node*, Node*>& I)
+	bool GetAltP(pair<vector<Node*>, vector<Node*>>& I)
 	{
 		lock_guard<mutex> lock(writer_lock);
         return AltProcessed[I];
 	}
 
-	void AddAltP(pair<Node*, Node*>& I, bool b)
+	void AddAltP(pair<vector<Node*>, vector<Node*>>& I, bool b)
     {
         lock_guard<mutex> lock(writer_lock);
         AltProcessed[I] = true;
     }
 
-	void AddAltC(pair<Node*, Node*>& I)
+	void AddAltC(pair<vector<Node*>, vector<Node*>>& I)
 	{
 		lock_guard<mutex> lock(writer_lock);
 		if (AltHeader.find(I) != AltHeader.end())
 			++AltCount[I], ++num_novel;
 	}
 
-	void AddAltH(pair<Node*, Node*>& I, char eid, string t, string g)
+	void AddAltH(pair<vector<Node*>, vector<Node*>>& I, char eid, string t, string g)
 	{
 		lock_guard<mutex> lock(writer_lock);
 		vector<string>& v = AltHeader[I];
@@ -510,22 +518,30 @@ class MT_Aligner
 
 	void WriteAlt()
 	{
-		ofstream out(opt.alt);
+		map<string, int> M;
 		for (auto& it : D.AltCount)
 		{
-			Node*  l = it.first.first;
-			Node*  r = it.first.second;
+			Node*  l = it.first.first.back();
+			Node*  r = it.first.second.front();
 			string g = D.AltGenes[it.first];
 			char   k = 0;
 
 			for (string& t : D.AltHeader[it.first])
 			{
-				if (t.size()) out << l->chr<< '\t' << l->e << '\t' << r->s << '\t'
-					              << t << '\t' << AltData::EID2Str(k) << '\t' 
-                                  << it.second << '\t'
-                                  << g << endl;				 
+				if (t.size()) 
+				{
+					string s = l->chr + "\t" + to_string(l->e) + "\t" + to_string(r->s) + "\t"
+                             + t + "\t" + g + "\t" + AltData::EID2Str(k) + "\t";
+                    M[s] += it.second;  
+				}
 				++k;
 			}
+		}
+
+		ofstream out(opt.alt);
+		for (auto& it : M)
+		{
+			out << it.first << "\t" << it.second << "\n";
 		}
 	}
 
@@ -541,10 +557,10 @@ class MT_Aligner
 
 		for (int i = 0; i < V.size() - 1; ++i)
 		{
-			pair<Node*, Node*> P(V[i].back(), V[i + 1].front());			
+			pair<vector<Node*>, vector<Node*>> P(V[i], V[i + 1]);			
 			if (!D.IsAltP(P))
 			{
-				string genes = MT_Aligner::GetGenes(P.first, P.second); 
+				string genes = MT_Aligner::GetGenes(P.first.back(), P.second.front()); 
 				bool f = false;
 				for (auto& a : AltSeq(gtf, V[i], V[i + 1]).GetEvents())
 				{
@@ -572,8 +588,8 @@ class MT_Aligner
 			}
 			return;
 		}
-		//if (A->core.flag != 0 && A->core.flag != 16)
-		//	return;
+		if (A->core.flag != 0 && A->core.flag != 16)
+			return;
 
 		string frag = H->target_name[A->core.tid];
 		Transcript T = MT_Aligner::Frag2Trans(gtf, frag);
@@ -691,6 +707,7 @@ class MT_Aligner
 		Transcript N;
 		if (T.nodes.size() > 1 && T.nodes[0]->size() > rl - 1) 
 			s += T.nodes[0]->size() - rl + 1;
+		T.pos = s;
 		for (int i = 0, c = 0; i < T.nodes.size(); ++i)
 		{
 			c += T.nodes[i]->size();

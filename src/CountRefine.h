@@ -87,48 +87,68 @@ class MT_CountRefine
 
 	void WriteAlt()
 	{
+		map<tuple<string, int, int, string>, tuple<string, string, int>> M;
+
 		if (opt.inalt != "")
 		{
 			Tokenizer in(opt.inalt);
 			while (in.nextLine())
 			{
-				RBT& tree = gtf.T[in.getToken()];
-				Node *l   = tree.search(stoi(in.getToken()));
-				Node *r   = tree.search(stoi(in.getToken()));
-				string a  = in.getToken();
-				string b  = in.getToken();
-				int    c  = stoi(in.getToken());
-				pair<Node*, Node*> P(make_pair(l, r));
-				vector<string>& v = D.AltHeader[P];
-				if (!v.size()) v = vector<string>(6, "");
-				v[AltData::Str2EID(b)] = a;
-				if (!D.AltCount[P]) D.AltCount[P] += c;
-				D.AltGenes[P] = in.getToken(); 
+				//string line = in.getLine();
+                //int p = line.find_last_of('\t');
+				string chr = in.getToken();
+				int s = stoi(in.getToken());
+                int e = stoi(in.getToken());
+				string t = in.getToken();
+                string g = in.getToken();
+				string id = in.getToken();
+				int c = stoi(in.getToken());
+                //int c = stoi(line.substr(p + 1, line.size() - p - 1));
+				//M[make_tuple(chr, s, e)] = c;
+				M[make_tuple(chr, s, e, id)] = make_tuple(t, g, c);
 			}
 		}
 
-		ofstream out(opt.outalt);
 		for (auto& it : D.AltCount)
 		{
-			Node*  l = it.first.first;
-			Node*  r = it.first.second;
+			Node*  l = it.first.first.back();
+			Node*  r = it.first.second.front();
 			string g = D.AltGenes[it.first];
 			char   k = 0;
 
 			for (string& t : D.AltHeader[it.first])
 			{
-				if (t.size()) out << l->chr<< '\t' << l->e << '\t' << r->s << '\t'
-					              << t << '\t' << AltData::EID2Str(k) << '\t' 
-                                  << it.second << '\t'
-                                  << g << endl;				
-				++k; 
+				if (t.size()) 
+				{
+					tuple<string, string, int>& m = M[make_tuple(l->chr, l->e, r->s, AltData::EID2Str(k))];
+					get<2>(m) += it.second;
+					if (get<0>(m) == "")
+					{
+						get<0>(m) = t;
+						get<1>(m) = g == "" ? "-" : g;
+					}
+				}
+				++k;
 			}
+		}
+
+		ofstream out(opt.outalt);
+
+		for (auto& it : M)
+		{
+			out << get<0>(it.first) << '\t'
+                << get<1>(it.first) << '\t'
+                << get<2>(it.first) << '\t'
+                << get<0>(it.second) << '\t' 
+                << get<1>(it.second) << '\t'
+                << get<3>(it.first) << '\t'
+                << get<2>(it.second) << '\n';
 		}
 
 		for (auto& it : D.IntCount)
 		{
 			const Node* n = it.first;
-			out << n->chr << '\t' << n->s << '\t' << n->e << "\t-\tIR\t" << it.second << endl; 
+			out << n->chr << '\t' << n->s << '\t' << n->e << "\t-\t-\tIR\t" << it.second << endl; 
 		}
 	}
 
@@ -177,10 +197,10 @@ class MT_CountRefine
 
 		for (int i = 0; i < V.size() - 1; ++i)
 		{
-			pair<Node*, Node*> P(V[i].back(), V[i + 1].front());
+			pair<vector<Node*>, vector<Node*>> P(V[i], V[i + 1]);
 			if (!D.IsAltP(P))
 			{
-				string genes = MT_Aligner::GetGenes(P.first, P.second); 
+				string genes = MT_Aligner::GetGenes(P.first.back(), P.second.front()); 
 				bool f = false;
 				for (auto& a : AltSeq(gtf, V[i], V[i + 1]).GetEvents())
 				{
@@ -329,14 +349,18 @@ class MT_CountRefine
 		return true;
 	}
 
-	void NewNode(string id, string c, int s, int e, set<string>& t)
+	void NewNode(string id, string c, int s, int e, set<string>& t, set<string>& g)
 	{
 		Node N;
 		N.id = id;
 		N.s = s;
 		N.e = e;
 		N.chr = c;
-		if (id[0] != 'I') N.tran = set<string>(t);
+		if (id[0] != 'I') 
+		{
+			N.gene = set<string>(g);
+			N.tran = set<string>(t);
+		}
 		gtf.T[c].insert(N);
 		gtf.C[id] = make_pair(c, s); 		
 	}
@@ -364,27 +388,28 @@ class MT_CountRefine
             if (ns == ms)
             {
 				set<string> nt(n->tran); 
+				set<string> gt(n->gene); 
 
                 if (!i && s + v[i] < ne)
                 {
                     t.remove(n);
-					NewNode(NewId(nid), c, ns, s + v[i], nt);
-					NewNode(NewId(nid), c, s + v[i] + 1, ne, nt);
+					NewNode(NewId(nid), c, ns, s + v[i], nt, gt);
+					NewNode(NewId(nid), c, s + v[i] + 1, ne, nt, gt);
                 }
                 else if (i == (int)v.size() && ns < s + 1)
                 {
                     t.remove(n);
-					NewNode(NewId(nid), c, ns, s, nt);
-					NewNode(NewId(nid), c, s + 1, ne, nt);
+					NewNode(NewId(nid), c, ns, s, nt, gt);
+					NewNode(NewId(nid), c, s + 1, ne, nt, gt);
                 }
                 else if (i && i < (int)v.size())
                 {
                     t.remove(n);
                     if (ns < s + 1)
-						NewNode(NewId(nid), c, ns, s, nt);
-					NewNode(NewId(nid), c, s + 1, s + v[i], nt);
+						NewNode(NewId(nid), c, ns, s, nt, gt);
+					NewNode(NewId(nid), c, s + 1, s + v[i], nt, gt);
                     if (s + v[i] < ne)
-						NewNode(NewId(nid), c, s + v[i] + 1, ne, nt);
+						NewNode(NewId(nid), c, s + v[i] + 1, ne, nt, gt);
                 }
             }                
             else
@@ -392,17 +417,19 @@ class MT_CountRefine
                 if (i && ns < s + 1)
                 {
 					set<string> nt(n->tran);
+                    set<string> gt(n->gene);
                     t.remove(n);
-                    NewNode(NewId(nid), c, ns, s, nt);
-					NewNode(NewId(nid), c, s + 1, ne, nt);
+                    NewNode(NewId(nid), c, ns, s, nt, gt);
+					NewNode(NewId(nid), c, s + 1, ne, nt, gt);
 		    		m = t.search(ms);
                 }    
                 if (i < (int)v.size() - 1 && s + v[i] + 1 < me)
                 {
 					set<string> mt(m->tran);
+                    set<string> gt(n->gene); 
                     t.remove(m);
-					NewNode(NewId(mid), c, ms, s + v[i], mt);
-					NewNode(NewId(mid), c, s + v[i] + 1, me, mt);
+					NewNode(NewId(mid), c, ms, s + v[i], mt, gt);
+					NewNode(NewId(mid), c, s + v[i] + 1, me, mt, gt);
                 }
             }   
         }

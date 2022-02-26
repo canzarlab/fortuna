@@ -84,6 +84,7 @@ class Transcript
 
 	string id;
 	vector<Node*> nodes;
+	int pos;
 
 	Transcript() : id("") { }
 

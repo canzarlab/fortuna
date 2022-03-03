@@ -241,7 +241,7 @@ class AltData
 {
 	public:
 
-	map<string, int> FragCount;
+	map<string, FragRecord> FragCount;
 	map<string, int> ReadCount;
 
 	map<pair<vector<Node*>, vector<Node*>>, vector<string>> AltHeader;
@@ -257,10 +257,12 @@ class AltData
 
 	AltData() : num_mapped(0), num_unmapped(0), num_novel(0) { }
 
-	void AddFrag(string f)
+	void AddFrag(string f, int s)
 	{
 		lock_guard<mutex> lock(writer_lock);
-		++FragCount[f];
+		FragRecord& R = FragCount[f];
+		R.positions.push_back(s);
+		++R.count;
 		++num_mapped;
 	}
 
@@ -512,8 +514,24 @@ class MT_Aligner
 	void WriteCnt()
 	{
 		ofstream out(opt.cnt);
-		for (auto it : D.FragCount)
-			out << it.first << '\t' << it.second << endl;
+
+		if (opt.outfq == "")
+		{
+			for (auto& it : D.FragCount)
+				out << it.first << '\t' << it.second.count << endl;
+		}
+		else
+		{
+			for (auto& it : D.FragCount)
+			{
+				out << it.first;
+				for (int i = 0; i < it.second.positions.size(); ++i)
+				{
+					out << '\t' << it.second.positions[i];
+				}
+				out << '\n';
+			}			
+		}
 	}	
 
 	void WriteAlt()
@@ -594,8 +612,6 @@ class MT_Aligner
 		string frag = H->target_name[A->core.tid];
 		Transcript T = MT_Aligner::Frag2Trans(gtf, frag);
 
-		//{ lock_guard<mutex> lock(writer_lock); if (++CNT % 1000000 == 0) cerr << CNT << endl;  }
-
 		if (!T.nodes.size()) 
 		{
 			if (opt.outfq != "")
@@ -618,15 +634,6 @@ class MT_Aligner
 				d = opt.rl + 1;
 			else
 				d = SeqDistance(a, b.substr(A->core.pos, opt.rl));
-						
-			/*if (d > 0)
-			{
-				cerr << d << endl;
-				cerr << a << endl;
-				cerr << b.substr(A->core.pos, opt.rl) << endl;
-				cerr << endl;
-			}*/
-
 		}	
 	
 		if (d > opt.n)
@@ -642,10 +649,14 @@ class MT_Aligner
 		}
 
 		if (opt.cnt != "" || opt.alt != "")
+		{
 			T = MT_Aligner::TrimTrans(T, A->core.pos, opt.rl);
+		}
 
 		if (opt.cnt != "")
-			D.AddFrag(MT_Aligner::Trans2Frag(T));
+		{
+			D.AddFrag(MT_Aligner::Trans2Frag(T), T.pos);
+		}
 		else
 		{
 			lock_guard<mutex> lock(writer_lock);
@@ -657,9 +668,7 @@ class MT_Aligner
 
 		if (opt.bam != "")
 		{
-			//lock_guard<mutex> lock(writer_lock);
 			B.push_back(A);
-			//int r = sam_write1(opt.bamfp, H, A); 
 		}
 	}
 
@@ -707,11 +716,14 @@ class MT_Aligner
 		Transcript N;
 		if (T.nodes.size() > 1 && T.nodes[0]->size() > rl - 1) 
 			s += T.nodes[0]->size() - rl + 1;
-		T.pos = s;
+		N.pos = s;
 		for (int i = 0, c = 0; i < T.nodes.size(); ++i)
 		{
 			c += T.nodes[i]->size();
-			if (s + 1 <= c) N.nodes.push_back(T.nodes[i]); // s <= c
+			if (s + 1 <= c) 
+				N.nodes.push_back(T.nodes[i]); // s <= c
+			else	
+				N.pos -= T.nodes[i]->size();
 			if (s + rl <= c) break; // <=
 		}
 		return N;

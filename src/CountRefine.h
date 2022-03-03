@@ -49,6 +49,7 @@ class MT_CountRefine
 		cerr << "done" << endl;
 		cerr << "[cntrf] generating transcript data ... " << flush;
 		gtf.genTranscripts();
+		ComputeOriginalNodes();
 		cerr << "done" << endl;
 		cerr << "[cntrf] processing alignments ... " << flush;
 		ParseAlignments();
@@ -67,6 +68,23 @@ class MT_CountRefine
 
 	private:
 
+	void ComputeOriginalNodes()
+	{
+		for (auto& it : gtf.T)
+		{
+			RBT& t = it.second;
+			for (Node* n = t.min(t.getRoot()); n && n != t.getNil(); n = t.successor(n))
+			{
+				if (n->id[0] == 'I') continue;
+				string bid = BaseId(n->id);
+				if (bid != n->id)
+				{
+					OriginalNodes[bid].push_back(n);
+				}
+			}
+		}
+	}
+	
 	void WriteCnt()
 	{
 		if (opt.incnt != "")
@@ -74,15 +92,29 @@ class MT_CountRefine
 			Tokenizer in(opt.incnt);
 			while (in.nextLine())
 			{
-				string f = in.getToken(); 
-				int    c = stoi(in.getToken());
-				D.FragCount[f] += c;
+				string frag = in.getToken();
+				Transcript T = Frag2Trans(frag);
+
+				if (frag != Trans2Frag(gtf, T))
+				{
+					continue;
+				}
+
+				while(true)
+				{
+					string t = in.getToken();
+					if (t == "") break;
+					int s = stoi(t);
+
+                    Transcript F = MT_CountRefine::TrimTrans(T, s, opt.rl);
+					++D.FragCount[Trans2Frag(gtf, F)].count;		
+				}
 			}
 		}	
 
 		ofstream out(opt.outcnt);
 		for (auto& it : D.FragCount)
-			out << it.first << '\t' << it.second << endl;
+			out << it.first << '\t' << it.second.count << '\n';
 	}
 
 	void WriteAlt()
@@ -237,6 +269,72 @@ class MT_CountRefine
         }
 	}
 
+	static Transcript TrimTrans(Transcript& T, int s, int rl)
+	{
+		Transcript N;
+		for (int i = 0, c = 0; i < T.nodes.size(); ++i)
+		{
+			c += T.nodes[i]->size();
+			if (s + 1 <= c) N.nodes.push_back(T.nodes[i]); // s <= c
+			if (s + rl <= c) break; // <=
+		}
+		return N;
+	}
+
+	Transcript Frag2Trans(string frag)
+	{
+		vector<string> v = SplitString(frag, '|');
+		Transcript T;
+		for (int i = 0; i < v.size(); ++i)
+		{
+			if (OriginalNodes.find(v[i]) == OriginalNodes.end())
+			{
+		        T.insert(gtf.getNode(v[i]));
+			}
+			else	
+			{
+				vector<Node*>& o = OriginalNodes[v[i]];
+				for (int j = 0; j < o.size(); ++j)
+				{
+					T.insert(o[j]);
+				}
+			}
+		}
+		T.sort();
+		return T;
+	}
+
+	string Trans2Frag(GTF& G, Transcript& T)
+	{
+		string s = "";
+		for (int i = 0; i < T.nodes.size(); ++i)
+		{
+			Node *n = T.nodes[i];
+			string bid = BaseId(n->id);
+
+			if (bid == n->id || bid[0] == 'I')
+				s += n->id + "|";
+			else 
+			{
+				vector<Node*>& o = OriginalNodes[bid];
+				bool f = i + o.size() <= T.nodes.size();
+				for (int k = 0; f && k < o.size(); ++k)
+				{
+					f = T.nodes[i + k]->id == o[k]->id;
+				}
+				if (f)
+				{
+					s += bid + "|"; 
+                    i += o.size() - 1;
+				}
+				else
+					s += n->id + "|";				
+			}
+		}
+		return s;
+	}
+
+	/*
 	static string Trans2Frag(GTF& G, Transcript& T)
 	{
 		RBT& t = G.T[T.nodes[0]->chr];
@@ -268,14 +366,23 @@ class MT_CountRefine
 		}
 		return s;
 	}
+	*/
 
 	void ParseAlignments()
 	{
 		for (int i = 0; i < RDS.size(); ++i)
 		{
-			Transcript T = Cigar2Frag(get<1>(RDS[i]), get<3>(RDS[i]), get<2>(RDS[i]));	
-			D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T));
-			ProcessAlt(T);
+			Transcript T = Cigar2Frag(get<1>(RDS[i]), get<3>(RDS[i]), get<2>(RDS[i]));
+			
+			if (opt.outcnt != "")
+			{	 
+				D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T), 0);
+			}
+
+			if (opt.outalt != "")
+			{
+				ProcessAlt(T);
+			}
 		}
 	}
 
@@ -356,11 +463,13 @@ class MT_CountRefine
 		N.s = s;
 		N.e = e;
 		N.chr = c;
+
 		if (id[0] != 'I') 
 		{
 			N.gene = set<string>(g);
 			N.tran = set<string>(t);
 		}
+
 		gtf.T[c].insert(N);
 		gtf.C[id] = make_pair(c, s); 		
 	}
@@ -447,6 +556,7 @@ class MT_CountRefine
 
 	private:
 	
+	map<string, vector<Node*>> OriginalNodes;
 	vector<tuple<string, string, int, string>> RDS;
 	CountRefineOpt& opt;
 	GTF gtf;

@@ -201,7 +201,7 @@ class MT_CountRefine
 		vector<int> v = ParseCigarC(cig);
 		RBT& tree = gtf.T[chr];
 		Transcript T;
-		
+
 		for (int i = 0; i < (int)v.size(); s += v[i++])   
         {
             if (i % 2) continue;
@@ -226,6 +226,11 @@ class MT_CountRefine
 				V.push_back(vector<Node*>({T.nodes[i]}));
 			else
 				V.back().push_back(T.nodes[i]);
+
+		if (V.size() <= 1)
+		{
+			return;
+		}
 
 		for (int i = 0; i < V.size() - 1; ++i)
 		{
@@ -373,7 +378,7 @@ class MT_CountRefine
 		for (int i = 0; i < RDS.size(); ++i)
 		{
 			Transcript T = Cigar2Frag(get<1>(RDS[i]), get<3>(RDS[i]), get<2>(RDS[i]));
-			
+	
 			if (opt.outcnt != "")
 			{	 
 				D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T), 0);
@@ -383,6 +388,8 @@ class MT_CountRefine
 			{
 				ProcessAlt(T);
 			}
+
+			//++D.num_mapped;
 		}
 	}
 
@@ -414,7 +421,6 @@ class MT_CountRefine
     {
         vector<int> v; string s = "";
         bool f = false;
-
         for (int i = 0; i < (int)c.size(); ++i)
             if (isdigit(c[i]))
                 s += c[i];
@@ -422,7 +428,8 @@ class MT_CountRefine
             {
                 if (c[i] != 'M' && c[i] != 'N') 
                     return vector<int>();
-                f = f || c[i] == 'N';
+                //f = f || c[i] == 'N';
+                f = f || c[i] == 'M';
                 v.push_back(stoi(s));
                 s = "";                
             }
@@ -437,11 +444,14 @@ class MT_CountRefine
         for (uint32_t i = 0; i < n; ++i)
 		{
 			uint32_t op = bam_cigar_op(c[i]); 
-			if (op != 0 && op != 3) return "";
-			f = f || op == 3;
-			s += to_string(bam_cigar_oplen(c[i])) + bam_cigar_opchr(c[i]);
+			if (op != 0 && op != 3 && op != 4) return "";			
+			if (op != 4)
+			{
+				f = f || !op;
+				//f = f || op == 3;
+				s += to_string(bam_cigar_oplen(c[i])) + bam_cigar_opchr(c[i]);
+			}
 		}
-
         return f ? s : "";
     }
 

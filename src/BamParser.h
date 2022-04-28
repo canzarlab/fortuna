@@ -611,6 +611,7 @@ class MT_Aligner
 
 		string frag = H->target_name[A->core.tid];
 		Transcript T = MT_Aligner::Frag2Trans(gtf, frag);
+		int rl = A->core.l_qseq;
 
 		if (!T.nodes.size()) 
 		{
@@ -628,7 +629,7 @@ class MT_Aligner
 		
 		if (opt.n)
 		{
-			string a = Hts2Seq(bam_get_seq(A), opt.rl);
+			string a = Hts2Seq(bam_get_seq(A), rl);
 			string b = MT_Aligner::Trans2Seq(fa, T, opt.rl);
 			if ((int)b.size() <= A->core.pos + opt.rl - 1)
 				d = opt.rl + 1;
@@ -650,7 +651,7 @@ class MT_Aligner
 
 		if (opt.cnt != "" || opt.alt != "")
 		{
-			T = MT_Aligner::TrimTrans(T, A->core.pos, opt.rl);
+			T = MT_Aligner::TrimTrans(T, A->core.pos, opt.rl, rl);
 		}
 
 		if (opt.cnt != "")
@@ -711,7 +712,7 @@ class MT_Aligner
 		return s;
 	}
 
-	static Transcript TrimTrans(Transcript& T, int s, int rl)
+	static Transcript TrimTrans(Transcript& T, int s, int rl, int len)
 	{
 		Transcript N;
 		if (T.nodes.size() > 1 && T.nodes[0]->size() > rl - 1) 
@@ -724,7 +725,7 @@ class MT_Aligner
 				N.nodes.push_back(T.nodes[i]); // s <= c
 			else	
 				N.pos -= T.nodes[i]->size();
-			if (s + rl <= c) break; // <=
+			if (s + len <= c) break; // <=
 		}
 		return N;
 	}

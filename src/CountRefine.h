@@ -383,6 +383,10 @@ class MT_CountRefine
 			{	 
 				D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T), 0);
 			}
+			else	
+			{
+				++D.num_mapped;
+			}
 
 			if (opt.outalt != "")
 			{

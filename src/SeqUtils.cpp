@@ -29,7 +29,8 @@ char BaseComplement(char c)
 int SeqDistance(string a, string b)
 {
 	int c = 0;
-    for (int i = 0; i < a.size(); ++i)
+	int n = min(a.size(), b.size());
+    for (int i = 0; i < n; ++i)
         c += toupper(a[i]) != toupper(b[i]);
     return c;
 }

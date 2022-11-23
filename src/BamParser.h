@@ -48,11 +48,14 @@ class BamParserOpt
 	int rl;
 	int n;
 
+	bool paired;
+
 	BamParserOpt() : 
 		infq(""), infa(""),
 		outfq(""), cnt(""), alt(""),
 		gtf(""), ind(""),
-		thr(1), rl(0), n(0), bam("")
+		thr(1), rl(0), n(0), bam(""),
+        paired(0)
 	{ }
 };
 
@@ -233,6 +236,7 @@ class FragRecord
 {
 	public:
 
+	vector<string> names;
 	vector<int> positions;
 	int count;
 };
@@ -257,11 +261,12 @@ class AltData
 
 	AltData() : num_mapped(0), num_unmapped(0), num_novel(0) { }
 
-	void AddFrag(string f, int s)
+	void AddFrag(string f, int s, string n)
 	{
 		lock_guard<mutex> lock(writer_lock);
 		FragRecord& R = FragCount[f];
 		R.positions.push_back(s);
+		if (n != "") R.names.push_back(n);
 		++R.count;
 		++num_mapped;
 	}
@@ -515,6 +520,21 @@ class MT_Aligner
 	{
 		ofstream out(opt.cnt);
 
+		if (opt.paired)
+		{
+			ofstream outp(opt.cnt + ".paired");
+
+			for (auto& it : D.FragCount)
+			{
+				outp << it.first;
+				for (int i = 0; i < it.second.names.size(); ++i)
+				{
+					outp << '\t' << it.second.names[i];
+				}
+				outp << '\n';
+			}
+		}
+
 		if (opt.outfq == "")
 		{
 			for (auto& it : D.FragCount)
@@ -656,7 +676,7 @@ class MT_Aligner
 
 		if (opt.cnt != "")
 		{
-			D.AddFrag(MT_Aligner::Trans2Frag(T), T.pos);
+			D.AddFrag(MT_Aligner::Trans2Frag(T), T.pos, opt.paired ? read : "");
 		}
 		else
 		{

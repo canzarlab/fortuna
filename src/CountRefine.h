@@ -381,7 +381,7 @@ class MT_CountRefine
 	
 			if (opt.outcnt != "")
 			{	 
-				D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T), 0);
+				D.AddFrag(MT_CountRefine::Trans2Frag(gtf, T), 0, "");
 			}
 			else	
 			{

@@ -8,6 +8,7 @@
 #include "BamParser.h"
 #include "CountRefine.h"
 #include "SubexonCounts.h"
+#include "PairedEnd.h"
 
 #include <kallisto/src/main.cpp>
 
@@ -229,6 +230,7 @@ int main(int argc, char* const argv[])
 				 << "\n\t -bam    <FILE>\t" << "output pseudoalignment BAM file"
 			     << "\n\t -miss   <INT> \t" << "maximum number of per alignment mismatches"
                  << "\n\t -thr    <INT> \t" << "number of worker threads"
+                 << "\n\t --p           \t" << "whether to output information used to construct paired end counts"
                  << "\n\n\tAlignment is done by kallisto. A read is considered to be misaligned "
                  << "\n\tif its unaligned by kallisto or if it has more than \"-miss\" mismatches.\n"
                  << endl;
@@ -328,6 +330,9 @@ int main(int argc, char* const argv[])
 
 		if (A.exists("bam"))
 			opt.bam = A("bam");
+
+		if (A.exists("p"))
+			opt.paired = true;
 
 		opt.cb = &main_kallisto;
 
@@ -434,6 +439,54 @@ int main(int argc, char* const argv[])
 		}
 
 		SubexonCount(opt);
+	}
+	else if (A.exists("pairs"))
+	{
+		if (argc == 2)
+		{
+			cerr << "\n\tpairs options:\n"
+				 << "\n\t -lf     <FILE>  \t" << "left counts (*)"
+                 << "\n\t -rf     <FILE>  \t" << "right counts (*)"
+				 << "\n\t -out    <FILE>  \t" << "output paired count file (*)"
+				 << "\n\t -incnt  <STRING>\t" << "left read postfix (default none)"
+				 << "\n\t -inalt  <STRING>\t" << "right read postfix (default none)"
+                 << endl;
+			return 0;
+		}
+
+		PairedEndOpt opt;
+ 
+        if (A.exists("lf"))
+			opt.leftFile = A("lf");
+		else
+		{
+			std::cerr << "[error] left input file not specified." << std::endl;
+			return 0;
+		}
+
+		if (A.exists("rf"))
+			opt.rightFile = A("rf");
+		else
+		{
+			std::cerr << "[error] right input file not specified." << std::endl;
+			return 0;
+		}
+			
+		if (A.exists("out"))
+			opt.outFile = A("out");
+		else
+		{
+			std::cerr << "[error] output file not specified." << std::endl;
+			return 0;
+		}
+
+		if (A.exists("lp"))
+			opt.leftPostfix = A("lp");
+
+		if (A.exists("rp"))
+			opt.rightPostfix = A("rp");
+
+		PairedEndCount(opt);
 	}
 	else if (A.exists("version"))
 	{

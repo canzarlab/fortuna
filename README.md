@@ -104,6 +104,7 @@ During the quantification step ("--quant"), reads will be pseudoaligned to fragm
 * ```-bam <FILE>``` output pseudoalignment BAM file
 * ```-miss <INT>``` maximum number of allowed mismatches during alignment; reads exceeding this number will be considered unaligned
 * ```-thr <INT>``` number of threads
+* ```--p ``` outputs an intermediate file which is used to quantify paired-end reads
 
 Signature counts are output in a tab separated file specified by --cnt.  It contains in each line the number of reads with a specific mapping signature. Mapping signatures are specified by a sequence of subexon IDs taken from the segmented GTF file, separated by symbol "|". In the following example, the alignment of 7 reads overlap subexons a,b,c, and d:
 
@@ -139,6 +140,23 @@ with their IDs and genomic coordinates (chromosome, start, end).
 Here is an example call to the refinement step:
 
  ``` ./fortuna --refine -rl 75 -gtf seq/a.gtf -bam res/star.bam -incnt res/cnt.tsv -outcnt res/cnt.refined.tsv -inalt res/alt.tsv -outalt res/alt.refined.tsv -ref res/ref.txt ```
+ 
+ 
+### Pairs
+
+fortuna can use two intermediate single-ended outputs obtained by ```--quant``` and merge them into a paired-end count file. Command ```--pairs```, which does that, has following inputs:
+
+* ```-lf <FILE>``` input file with left reads (*)
+* ```-rf <FILE>``` output file with subexon counts (*)
+* ```-out <FILE>``` output file with subexon counts (*)
+* ```-lp <STRING>``` left file read suffix
+* ```-rp <STRING>``` right file read suffix
+
+Sometimes, left and right read names have specific suffixes at their respective ends, e.g. r1/1 (left) and r1/2 (right) could represent a read pair. Optional arguments ```--lp``` and ```--rp``` are used to filter out postfixes ("/1" and "/2" in the example).
+
+Here is an example call:
+ 
+ ``` ./fortuna --pairs -lf res/left.cnt -rf res/right.cnt -out res/paired.cnt ```
 
 
 ### Transform
@@ -152,7 +170,22 @@ Here is an example conversion of counts:
  ``` ./fortuna --trans -incnt res/a.cnt -outcnt res/a.subexon.cnt ```
  
  
- ## References
+### Minimal working sample
+ 
+Minimal working sample can be downloaded from here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). Extract it to the root fortuna folder, then use the following commands.
+ 
+``` 
+cd sample
+bash run.sh
+```
+
+
+### Docker
+
+Alternativly, fortuna can be run from a docker container which can be found here: link.
+ 
+ 
+## References
  [1] A. Dobin et al. Star: ultrafast universal rna-seq aligner. Bioinformatics, 29(1):15–21, 2013.
  
  [2] N. L. Bray, H. Pimentel, P. Melsted, and L. Pachter. Near-optimal probabilistic rna-seq quantification. Nature Biotechnology, 34:525–527, 2016.

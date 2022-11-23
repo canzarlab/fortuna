@@ -176,13 +176,13 @@ Minimal working sample can be downloaded from here: [link](https://fizika-my.sha
  
 ``` 
 cd sample
-bash run.sh
+bash sample.sh
 ```
 
 
 ### Docker
 
-Alternativly, fortuna can be run from a docker container which can be found here: link.
+Alternativly, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
  
  
 ## References

@@ -184,7 +184,7 @@ The sample contains approximately 240000 reads, taken from [4], that were previo
 
 ### Docker
 
-Alternativly, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
+Alternatively, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
  
  
 ## References

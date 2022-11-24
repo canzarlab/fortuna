@@ -179,6 +179,8 @@ cd sample
 bash sample.sh
 ```
 
+The sample contains approximately 240000 reads, taken from [4], that were previously mapped to STAT1 gene located on chromosome 2 by STAR. fortuna should map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854.
+
 
 ### Docker
 
@@ -192,7 +194,8 @@ Alternativly, fortuna can be run from a docker container which can be found here
  
  [3] S. Anders, A. Reyes, and W. Huber. Detecting differential usage of exons from rna-seq data. Genome Research, 22:2008–2017, 2012.
  
-
+ [4] K. Jaganathan et al. Predicting splicing from primary sequence with deep learning. Cell, 176(3):535–548, 2019.
  
+
 ## Developer
 * Luka Borozan (lborozan@mathos.hr)

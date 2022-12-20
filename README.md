@@ -67,7 +67,7 @@ following options are available, mandatory arguments are marked by (*).
 * ```-Mc <INT>``` maximum number of fragments per gene (default 25000)
 * ```-lgo <STR>``` large gene optimization strategy (default "11")
 
-The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded.    
+The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded. Finally, if the samples intended to be processed by fortuna contain variable read lengths, we recommend setting -rl to the length of the longest read.    
 
 The following options further restrict the set of generated fragments: 
 
@@ -106,6 +106,8 @@ During the quantification step ("--quant"), reads will be pseudoaligned to fragm
 * ```-thr <INT>``` number of threads
 * ```--p ``` outputs an intermediate file which is used to quantify paired-end reads
 
+As in the indexing step, we recommend setting -rl to the length of the longest read.
+
 Signature counts are output in a tab separated file specified by --cnt.  It contains in each line the number of reads with a specific mapping signature. Mapping signatures are specified by a sequence of subexon IDs taken from the segmented GTF file, separated by symbol "|". In the following example, the alignment of 7 reads overlap subexons a,b,c, and d:
 
 ``` a|b|c|d| 7 ```
@@ -135,7 +137,7 @@ Optionally ("--refine"), fortuna incorporates novel splice sites identified by a
 * ```-inalt <FILE>``` input file with novel event annotation
  
 Input files specified by "-incnt" and "-inalt", if specified, will be augmented by the new splice sites taken from the BAM file and stored to files specified by "-outcnt" and "--outalt". The refinement reference file is a tab separated file which contains all newly created or refined subexons and introns. They are listed
-with their IDs and genomic coordinates (chromosome, start, end).
+with their IDs and genomic coordinates (chromosome, start, end). We recommend setting -rl to the length of the longest read.
 
 Here is an example call to the refinement step:
 
@@ -185,7 +187,12 @@ The sample contains approximately 240000 reads, taken from [4], that were previo
 ### Docker
 
 Alternatively, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
- 
+
+
+### Indices
+
+We provide human indices built for read length 75, 100 and 150 for gencode human genome (https://www.gencodegenes.org/human/) release 42 (GRCh38.p13, access date 17.12.2022.) here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ETwmNnpipddLlOjgqSDW8UwBCc6ktSMqUDnVDp0OekLJfQ?e=8dTNr6&download=1).
+
  
 ## References
  [1] A. Dobin et al. Star: ultrafast universal rna-seq aligner. Bioinformatics, 29(1):15–21, 2013.

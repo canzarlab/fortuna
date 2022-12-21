@@ -201,6 +201,10 @@ chr2 190984393 190986854 NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,X
 ```
 which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon ids in the cnt.tsv file, chromosome, gene, and transcript ids are the same as in the input GTF file.
 
+Below is an example sashimi plot of the novel exon skipping we generated using IGV.
+<img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
+
+
 ### Docker
 
 Alternatively, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).

@@ -7,7 +7,7 @@ events. It proceeds in the steps shown in the figure below.
 <img src="https://user-images.githubusercontent.com/37735817/149656945-bba990cf-d608-4901-9fc5-a3adfe568fd0.jpg" width=45% height=50%>
 </p>
 
-fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by a spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
+fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by **any** spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
 
 
 
@@ -125,7 +125,7 @@ Here is an example call of the quantification step:
 
 ### Refinement
 
-Optionally ("--refine"), fortuna incorporates novel splice sites identified by a spliced aligner such as STAR from previously unmapped reads.
+Optionally ("--refine"), fortuna incorporates novel splice sites identified by **any** spliced aligner (such as STAR) from previously unmapped reads.
 
 * ```-rl <INT>``` input read length (*)
 * ```-gtf <FILE>``` preprocessed GTF file (*)

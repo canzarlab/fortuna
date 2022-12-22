@@ -46,7 +46,7 @@ In addition to compiling from source, pre-compiled fortuna binaries can be downl
 
 ## Docker
 
-Alternatively, fortuna can be run in a docker container. The image can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
+Alternatively, fortuna can be run in a docker container. The image can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1). It has been built on Linux and was tested on Linux and Mac OS, but not on Windows.
 
 Then fortuna can be run on a small example dataset (see below) using the following commands:
 

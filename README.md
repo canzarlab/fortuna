@@ -93,11 +93,8 @@ Below is an example sashimi plot of the novel exon skipping we generated using I
 <img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
 
 
-## Download fortuna binaries
-Finally, precompiled fortuna binaries can be downloaded from the list below:
-- [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip),
-- [OSX](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
-
+## Pre-compiled fortuna binaries
+Precompiled fortuna binaries can be downloaed for the x86_64 architecture running [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip) or [Mac OS X](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
 
 
 ## Usage

@@ -35,11 +35,65 @@ cmake ..
 make 
 ```
 
+## Docker
+
+Alternatively, fortuna can be run in a docker container. The image can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
+
+Then fortuna can be run on a small example dataset (see below) using the following commands:
+
+``` 
+# Download and load docker image
+wget -O fortuna1-00.tar "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1"
+docker load -i fortuna1-00.tar
+
+# Download sample
+wget -O sample.zip "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1"
+unzip sample.zip -d sample
+
+# Run docker image with the sample
+docker run -it -v "$PWD"/sample:/fortuna/sample fortuna:1.00
+
+# Once inside the docker image, run the following commands
+cd sample
+bash sample.sh
+``` 
+## Example dataset
+ 
+Minimal working sample can be downloaded from here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). Extract it to the root fortuna folder, then use the following commands.
+ 
+``` 
+cd sample
+bash sample.sh
+```
+
+The sample contains approximately 240000 reads, taken from [4], that were previously mapped to STAT1 gene located on chromosome 2 by STAR. fortuna should map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854.
+
+Two tab-separated output files will be created after a couple of seconds - cnt.tsv and alt.tsv. 
+
+File cnt.tsv contains signature counts in the format we have previously described. An example line from the file follows.
+```
+223832|223833|223836|   2274
+``` 
+The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. Ids of the subexons are the same as in the input GTF file sample.rg.gtf.
+
+File alt.tsv contains novel splicing information. To obtain the information regarding the previously mentioned novel exon skipping, input the following command.
+```
+grep -P "chr2\t190984393\t190986854\t" alt.tsv
+```
+The result should be:
+```
+chr2 190984393 190986854 NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,XR_001738914.2,XR_001738915.2 Locus_18066 ES 1256
+```
+which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3, NM_139266.2, XM_006712718.1, XM_017004783.2, XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon ids in the cnt.tsv file, chromosome, gene, and transcript ids are the same as in the input GTF file.
+
+Below is an example sashimi plot of the novel exon skipping we generated using IGV.
+<img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
 
 
-## Instructions
 
-Below we describe how to run the individual steps shown in the figure above. For a complete list of options, run fortuna without any parameters.
+## Usage
+
+Below we describe how to run the individual steps shown in the top figure. For a complete list of options, run fortuna without any parameters.
 
  ``` ./fortuna ```
 
@@ -172,62 +226,6 @@ Here is an example conversion of counts:
  ``` ./fortuna --trans -incnt res/a.cnt -outcnt res/a.subexon.cnt ```
  
  
-### Minimal working sample
- 
-Minimal working sample can be downloaded from here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). Extract it to the root fortuna folder, then use the following commands.
- 
-``` 
-cd sample
-bash sample.sh
-```
-
-The sample contains approximately 240000 reads, taken from [4], that were previously mapped to STAT1 gene located on chromosome 2 by STAR. fortuna should map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854.
-
-Two tab-separated output files will be created after a couple of seconds - cnt.tsv and alt.tsv. 
-
-File cnt.tsv contains signature counts in the format we have previously described. An example line from the file follows.
-```
-223832|223833|223836|   2274
-``` 
-The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. Ids of the subexons are the same as in the input GTF file sample.rg.gtf.
-
-File alt.tsv contains novel splicing information. To obtain the information regarding the previously mentioned novel exon skipping, input the following command.
-```
-grep -P "chr2\t190984393\t190986854\t" alt.tsv
-```
-The result should be:
-```
-chr2 190984393 190986854 NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,XR_001738914.2,XR_001738915.2 Locus_18066 ES 1256
-```
-which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3, NM_139266.2, XM_006712718.1, XM_017004783.2, XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon ids in the cnt.tsv file, chromosome, gene, and transcript ids are the same as in the input GTF file.
-
-Below is an example sashimi plot of the novel exon skipping we generated using IGV.
-<img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
-
-
-### Docker
-
-Alternatively, fortuna can be run from a docker container which can be found here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
-
-Docker image with the minimal working sample can be run by using the following commands.
-
-``` 
-# Download and load docker image
-wget -O fortuna1-00.tar "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1"
-docker load -i fortuna1-00.tar
-
-# Download sample
-wget -O sample.zip "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1"
-unzip sample.zip -d sample
-
-# Run docker image with the sample
-docker run -it -v "$PWD"/sample:/fortuna/sample fortuna:1.00
-
-# Once inside the docker image, run following commands
-cd sample
-bash sample.sh
-``` 
-
 
 ### Indices
 

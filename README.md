@@ -9,12 +9,12 @@ events. It proceeds in the steps shown in the figure below.
 
 fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by **any** spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
 
-#### Download fortuna index
+#### GENCODE fortuna index
 
-If you want to use fortuna with human transcripts annoated in Gencode (https://www.gencodegenes.org/human/), relase 42 (GRCh38.p13, access date 17.12.2022) you can download here the fortuna index for read lengths:
-- [75](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ERy8k_wj6DBGj03jVFphQ14BKjdGtogzU_43M7Wqm6CyHQ?e=zWYYBA&download=1),
-- [100](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EfRsiEzTOyJOvDoqflZkfCABTPLiIIKxMqUX6QvZk2jdpA?e=jwe3id&download=1),
-- [150](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ESzjW3JAQUNHrsuMN1Vum2kBLaKx7-E_r0tcd16FUAsH9g?e=q6hCne&download=1).
+If you want to use fortuna with human transcripts annoated in GENCODE (https://www.gencodegenes.org/human/), release 42 (GRCh38.p13, access date 17.12.2022), you can download here the fortuna index for different read lengths Other species will follow.
+- [*H. sapiens*, read length 75bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ERy8k_wj6DBGj03jVFphQ14BKjdGtogzU_43M7Wqm6CyHQ?e=zWYYBA&download=1),
+- [*H. sapiens*, read length 100bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EfRsiEzTOyJOvDoqflZkfCABTPLiIIKxMqUX6QvZk2jdpA?e=jwe3id&download=1),
+- [*H. sapiens*, read length 150bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ESzjW3JAQUNHrsuMN1Vum2kBLaKx7-E_r0tcd16FUAsH9g?e=q6hCne&download=1).
 
 ## Dependencies
 
@@ -26,7 +26,6 @@ Also, fortuna requires
 Additional dependencies are included with fortuna, including
 * kallisto (https://github.com/pachterlab/kallisto)
 * htslib (https://github.com/samtools/htslib)
-
 
 
 ## Installation

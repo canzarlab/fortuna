@@ -64,7 +64,7 @@ bash sample.sh
 ``` 
 ## Example dataset
  
-An example dataset can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). It contains approximately 240,000 reads taken from a sample 4 (patient id 11352.p1) in [4] that map to gene STAT1. fortuna will map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854. After extracting the data to the root fortuna folder, use the following commands.
+An example dataset can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). It contains approximately 240,000 reads taken from sample 4 (patient id 11352.p1) in [4] that map to gene STAT1. fortuna will map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854. After extracting the data to the root fortuna folder, use the following commands.
  
 ``` 
 cd sample

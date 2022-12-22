@@ -7,9 +7,14 @@ events. It proceeds in the steps shown in the figure below.
 <img src="https://user-images.githubusercontent.com/37735817/149656945-bba990cf-d608-4901-9fc5-a3adfe568fd0.jpg" width=45% height=50%>
 </p>
 
-fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by a spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
+fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by **any** spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
 
+#### GENCODE fortuna index
 
+If you want to use fortuna with human transcripts annoated in GENCODE (https://www.gencodegenes.org/human/), release 42 (GRCh38.p13, access date 17.12.2022), you can download here the fortuna index for different read lengths Other species will follow.
+- [*H. sapiens*, read length 75bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ERy8k_wj6DBGj03jVFphQ14BKjdGtogzU_43M7Wqm6CyHQ?e=zWYYBA&download=1),
+- [*H. sapiens*, read length 100bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EfRsiEzTOyJOvDoqflZkfCABTPLiIIKxMqUX6QvZk2jdpA?e=jwe3id&download=1),
+- [*H. sapiens*, read length 150bp](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ESzjW3JAQUNHrsuMN1Vum2kBLaKx7-E_r0tcd16FUAsH9g?e=q6hCne&download=1).
 
 ## Dependencies
 
@@ -23,7 +28,6 @@ Additional dependencies are included with fortuna, including
 * htslib (https://github.com/samtools/htslib)
 
 
-
 ## Installation
 
 After cloning the repository, run the following commands in the fortuna folder
@@ -35,11 +39,69 @@ cmake ..
 make 
 ```
 
+## Docker
+
+Alternatively, fortuna can be run in a docker container. The image can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
+
+Then fortuna can be run on a small example dataset (see below) using the following commands:
+
+``` 
+# Download and load docker image
+wget -O fortuna1-00.tar "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1"
+docker load -i fortuna1-00.tar
+
+# Download sample
+wget -O sample.zip "https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1"
+unzip sample.zip -d sample
+
+# Run docker image with the sample
+docker run -it -v "$PWD"/sample:/fortuna/sample fortuna:1.00
+
+# Once inside the docker image, run the following commands
+cd sample
+bash sample.sh
+``` 
+## Example dataset
+ 
+An example dataset can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). It contains approximately 240,000 reads taken from sample 4 (patient id 11352.p1) in [4] that map to gene STAT1. fortuna will map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854. After extracting the data to the root fortuna folder, use the following commands.
+ 
+``` 
+cd sample
+bash sample.sh
+```
+
+Two tab-separated output files will be created after a couple of seconds - cnt.tsv and alt.tsv. 
+
+File cnt.tsv contains signature counts in the format documented below. An example line from the file follows.
+```
+223832|223833|223836|   2274
+``` 
+The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. The IDs of the subexons are taken from the input GTF file sample.rg.gtf (field NodeId). Note that the GTF file has been pre-processed using script ``` bin/processGTF.sh ```.
+
+File alt.tsv contains novel splicing information. To obtain the information regarding the previously mentioned novel exon skipping, use the following command. On an OSX system, omit ```-P```.
+```
+grep -P "chr2\t190984393\t190986854\t" alt.tsv
+```
+The result should be:
+```
+chr2 190984393 190986854 NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,XR_001738914.2,XR_001738915.2 Locus_18066 ES 1256
+```
+which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3, NM_139266.2, XM_006712718.1, XM_017004783.2, XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon IDs in the cnt.tsv file, chromosome, gene (gene_id field), and transcript IDs (transcript_id field) are taken from the input GTF file.
+
+Below is an example sashimi plot of the novel exon skipping we generated using IGV.
+<img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
 
 
-## Instructions
+## Download fortuna binaries
+Finally, precompiled fortuna binaries can be downloaded from the list below:
+- [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip),
+- [OSX]().
 
-Below we describe how to run the individual steps shown in the figure above. For a complete list of options, run fortuna without any parameters.
+
+
+## Usage
+
+Below we describe how to run the individual steps shown in the top figure. For a complete list of options, run fortuna without any parameters.
 
  ``` ./fortuna ```
 
@@ -62,12 +124,14 @@ following options are available, mandatory arguments are marked by (*).
 * ```-infa <FILE>``` input chromosome FASTA file (*)
 * ```-outfa <FILE>``` outputs intermediate index fasta (*)
 * ```-ind <FILE>``` outputs the final index file for quantification (*)
-* ```-rl <INT>``` target read length (*)
+* ```-rl <INT>``` target read length (*) 
 * ```-tmp <FOLD>``` temporary folder (defaults to the current folder)
 * ```-Mc <INT>``` maximum number of fragments per gene (default 25000)
 * ```-lgo <STR>``` large gene optimization strategy (default "11")
 
-The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded.    
+If input reads are of variable length (e.g. after trimming), we recommend setting the target read length (parameter -rl) to the length of the longest read in the sample.
+
+The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded.  
 
 The following options further restrict the set of generated fragments: 
 
@@ -106,6 +170,8 @@ During the quantification step ("--quant"), reads will be pseudoaligned to fragm
 * ```-thr <INT>``` number of threads
 * ```--p ``` outputs an intermediate file which is used to quantify paired-end reads
 
+As in the indexing step, we recommend setting -rl to the length of the longest read.
+
 Signature counts are output in a tab separated file specified by --cnt.  It contains in each line the number of reads with a specific mapping signature. Mapping signatures are specified by a sequence of subexon IDs taken from the segmented GTF file, separated by symbol "|". In the following example, the alignment of 7 reads overlap subexons a,b,c, and d:
 
 ``` a|b|c|d| 7 ```
@@ -123,7 +189,7 @@ Here is an example call of the quantification step:
 
 ### Refinement
 
-Optionally ("--refine"), fortuna incorporates novel splice sites identified by a spliced aligner such as STAR from previously unmapped reads.
+Optionally ("--refine"), fortuna incorporates novel splice sites identified by any spliced aligner (such as STAR) from previously unmapped reads.
 
 * ```-rl <INT>``` input read length (*)
 * ```-gtf <FILE>``` preprocessed GTF file (*)
@@ -135,14 +201,14 @@ Optionally ("--refine"), fortuna incorporates novel splice sites identified by a
 * ```-inalt <FILE>``` input file with novel event annotation
  
 Input files specified by "-incnt" and "-inalt", if specified, will be augmented by the new splice sites taken from the BAM file and stored to files specified by "-outcnt" and "--outalt". The refinement reference file is a tab separated file which contains all newly created or refined subexons and introns. They are listed
-with their IDs and genomic coordinates (chromosome, start, end).
+with their IDs and genomic coordinates (chromosome, start, end). We recommend setting -rl to the length of the longest read.
 
 Here is an example call to the refinement step:
 
  ``` ./fortuna --refine -rl 75 -gtf seq/a.gtf -bam res/star.bam -incnt res/cnt.tsv -outcnt res/cnt.refined.tsv -inalt res/alt.tsv -outalt res/alt.refined.tsv -ref res/ref.txt ```
  
  
-### Pairs
+### Paired-end reads
 
 fortuna can use two intermediate single-ended outputs obtained by ```--quant``` and merge them into a paired-end count file. Command ```--pairs```, which does that, has following inputs:
 
@@ -168,22 +234,7 @@ fortuna also allows to transform (```--trans```) signature counts to subexon cou
 Here is an example conversion of counts:
  
  ``` ./fortuna --trans -incnt res/a.cnt -outcnt res/a.subexon.cnt ```
- 
- 
-### Minimal working sample
- 
-Minimal working sample can be downloaded from here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). Extract it to the root fortuna folder, then use the following commands.
- 
-``` 
-cd sample
-bash run.sh
-```
 
-
-### Docker
-
-Alternativly, fortuna can be run from a docker container which can be found here: link.
- 
  
 ## References
  [1] A. Dobin et al. Star: ultrafast universal rna-seq aligner. Bioinformatics, 29(1):15–21, 2013.
@@ -192,7 +243,8 @@ Alternativly, fortuna can be run from a docker container which can be found here
  
  [3] S. Anders, A. Reyes, and W. Huber. Detecting differential usage of exons from rna-seq data. Genome Research, 22:2008–2017, 2012.
  
-
+ [4] K. Jaganathan et al. Predicting splicing from primary sequence with deep learning. Cell, 176(3):535–548, 2019.
  
+
 ## Developer
 * Luka Borozan (lborozan@mathos.hr)

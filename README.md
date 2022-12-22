@@ -41,7 +41,7 @@ make
 ```
 
 ## Pre-compiled fortuna binaries
-In addition to compiling from source, pre-compiled fortuna binaries can be downloaded for the x86_64 architecture running [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip) or [Mac OS X](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
+In addition to compiling from source, pre-compiled fortuna binaries can be downloaded for the x86_64 architecture running [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip) or [Mac OS X](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip) architecture arm64/M1/M2.
 
 
 ## Docker

@@ -181,7 +181,7 @@ Here is an example call of the quantification step:
 
 ### Refinement
 
-Optionally ("--refine"), fortuna incorporates novel splice sites identified by **any** spliced aligner (such as STAR) from previously unmapped reads.
+Optionally ("--refine"), fortuna incorporates novel splice sites identified by any spliced aligner (such as STAR) from previously unmapped reads.
 
 * ```-rl <INT>``` input read length (*)
 * ```-gtf <FILE>``` preprocessed GTF file (*)

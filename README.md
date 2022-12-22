@@ -9,7 +9,9 @@ events. It proceeds in the steps shown in the figure below.
 
 fortuna starts (A) by "guessing" novel transcripts based on annotated splice sites. It then (B) creates a set of sequence fragments of annotated and guessed novel transcripts that contain all possible combinations of unspliced exonic segments. From this set of fragments we build a kallisto [2] index (C) and use it to efficiently pseudoalign reads to fragments (D), which yields counts of the most elementary splicing units, the **signature counts**. Optionally, fortuna can further incorporate novel splice sites (e.g. segment s<sub>2</sub>) identified by **any** spliced aligner from reads that remained unmapped in step (D). Computed counts can be directly used for alternative splicing analysis or added up to larger units such as those used by DEXSeq [3] (E1). In addition, fortuna annotates all novel events (E2) based on precise definitions of event types.
 
+#### Download fortuna index
 
+If you want to use fortuna with human transcripts annoated in Gencode (https://www.gencodegenes.org/human/), relase 42 (GRCh38.p13, access date 17.12.2022) you can download here the fortuna index for read lengths [75](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ETwmNnpipddLlOjgqSDW8UwBCc6ktSMqUDnVDp0OekLJfQ?e=8dTNr6&download=1), 100, or 150. 
 
 ## Dependencies
 
@@ -114,12 +116,14 @@ following options are available, mandatory arguments are marked by (*).
 * ```-infa <FILE>``` input chromosome FASTA file (*)
 * ```-outfa <FILE>``` outputs intermediate index fasta (*)
 * ```-ind <FILE>``` outputs the final index file for quantification (*)
-* ```-rl <INT>``` target read length (*)
+* ```-rl <INT>``` target read length (*) 
 * ```-tmp <FOLD>``` temporary folder (defaults to the current folder)
 * ```-Mc <INT>``` maximum number of fragments per gene (default 25000)
 * ```-lgo <STR>``` large gene optimization strategy (default "11")
 
-The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded. Finally, if the samples intended to be processed by fortuna contain variable read lengths, we recommend setting -rl to the length of the longest read.    
+If input reads are of variable length (e.g. after trimming), we recommend setting the target read length (parameter -rl) to the length of the longest read in the sample.
+
+The last parameter "-lgo" controls the extention of the catalog of known trascripts by novel "guessed" ones (step A). It takes as argument a string of up to two numbers from the set {0, 2, 1} where 0 is the least restrictive option, 2 is the middle ground and 1 is the most restrictive option. The less restrictive optimizations are, the more additional isoforms will be generated. Option 0 denotes the most comprehensive extension. It creates fragments by combining known donor and acceptor sites of the same gene (set <img src="https://render.githubusercontent.com/render/math?math=T^{ap}_{g}"> in the manuscript).  Option 2 only allows to combine splice sites that lie within the boundaries of a known transcript (set <img src="https://render.githubusercontent.com/render/math?math=T^{as}_{g}">). Finally, option 1 does not create any novel fragments but only uses annotated transcripts. If the provided argument consists of 2 numbers, fragments are created initially using the strategy specified by the first number, gradually reducing to the strategy specified by the second if -Mc is exceeded.  
 
 The following options further restrict the set of generated fragments: 
 
@@ -196,7 +200,7 @@ Here is an example call to the refinement step:
  ``` ./fortuna --refine -rl 75 -gtf seq/a.gtf -bam res/star.bam -incnt res/cnt.tsv -outcnt res/cnt.refined.tsv -inalt res/alt.tsv -outalt res/alt.refined.tsv -ref res/ref.txt ```
  
  
-### Pairs
+### Paired-end reads
 
 fortuna can use two intermediate single-ended outputs obtained by ```--quant``` and merge them into a paired-end count file. Command ```--pairs```, which does that, has following inputs:
 
@@ -222,12 +226,6 @@ fortuna also allows to transform (```--trans```) signature counts to subexon cou
 Here is an example conversion of counts:
  
  ``` ./fortuna --trans -incnt res/a.cnt -outcnt res/a.subexon.cnt ```
- 
- 
-
-### Indices
-
-We provide human indices built for read length 75, 100 and 150 for gencode human genome (https://www.gencodegenes.org/human/) release 42 (GRCh38.p13, access date 17.12.2022.) here: [link](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ETwmNnpipddLlOjgqSDW8UwBCc6ktSMqUDnVDp0OekLJfQ?e=8dTNr6&download=1).
 
  
 ## References

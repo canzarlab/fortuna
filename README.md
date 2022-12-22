@@ -76,7 +76,7 @@ File cnt.tsv contains signature counts in the format documented below. An exampl
 ```
 223832|223833|223836|   2274
 ``` 
-The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. The IDs of the subexons are taken from the input GTF file sample.rg.gtf (NodeId field). Note that the GTF file has been pre-processed using ``` bin/processGTF.sh ``` script.
+The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. The IDs of the subexons are taken from the input GTF file sample.rg.gtf (field NodeId). Note that the GTF file has been pre-processed using script ``` bin/processGTF.sh ```.
 
 File alt.tsv contains novel splicing information. To obtain the information regarding the previously mentioned novel exon skipping, use the following command.
 ```

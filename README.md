@@ -40,6 +40,11 @@ cmake ..
 make 
 ```
 
+## Pre-compiled fortuna binaries
+Precompiled fortuna binaries can be downloaded for the x86_64 architecture running [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip) or [Mac OS X](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
+
+
+
 ## Docker
 
 Alternatively, fortuna can be run in a docker container. The image can be downloaded [here](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EZapKOTGS05AhDK7821YRW4BcBx_nV6Yk6IQXz3YiPU_Lg?e=5s3nLR&download=1).
@@ -91,10 +96,6 @@ which means that on chromosome 2 there exists a novel intron between coordinates
 
 Below is an example sashimi plot of the novel exon skipping we generated using IGV.
 <img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
-
-
-## Pre-compiled fortuna binaries
-Precompiled fortuna binaries can be downloaed for the x86_64 architecture running [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip) or [Mac OS X](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
 
 
 ## Usage

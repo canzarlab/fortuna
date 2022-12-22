@@ -96,7 +96,7 @@ Below is an example sashimi plot of the novel exon skipping we generated using I
 ## Download fortuna binaries
 Finally, precompiled fortuna binaries can be downloaded from the list below:
 - [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip),
-- [OSX]().
+- [OSX](https://github.com/canzarlab/fortuna/files/10289050/fortuna_mac.zip).
 
 
 

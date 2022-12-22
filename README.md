@@ -11,7 +11,10 @@ fortuna starts (A) by "guessing" novel transcripts based on annotated splice sit
 
 #### Download fortuna index
 
-If you want to use fortuna with human transcripts annoated in Gencode (https://www.gencodegenes.org/human/), relase 42 (GRCh38.p13, access date 17.12.2022) you can download here the fortuna index for read lengths [75](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ETwmNnpipddLlOjgqSDW8UwBCc6ktSMqUDnVDp0OekLJfQ?e=8dTNr6&download=1), 100, or 150. 
+If you want to use fortuna with human transcripts annoated in Gencode (https://www.gencodegenes.org/human/), relase 42 (GRCh38.p13, access date 17.12.2022) you can download here the fortuna index for read lengths:
+- [75](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ERy8k_wj6DBGj03jVFphQ14BKjdGtogzU_43M7Wqm6CyHQ?e=zWYYBA&download=1),
+- [100](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EfRsiEzTOyJOvDoqflZkfCABTPLiIIKxMqUX6QvZk2jdpA?e=jwe3id&download=1),
+- [150](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/ESzjW3JAQUNHrsuMN1Vum2kBLaKx7-E_r0tcd16FUAsH9g?e=q6hCne&download=1).
 
 ## Dependencies
 
@@ -61,7 +64,7 @@ bash sample.sh
 ``` 
 ## Example dataset
  
-An example dataset can be downloaded [here:](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). It contains approximately 240,000 reads taken from a sample in [4] that map to gene STAT1. fortuna will map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854. After extracting the data to the root fortuna folder, use the following commands.
+An example dataset can be downloaded [here:](https://fizika-my.sharepoint.com/:u:/g/personal/lborozan_unios_hr/EaprBlTdJU5Ekt6-EKRkyr8B1KFRbbptoCDLjrFMgv-pqQ?e=vmPJVY&download=1). It contains approximately 240,000 reads taken from a sample in [4] that map to gene STAT1 (sample 4, patient id 11352.p1). fortuna will map over 99% of those reads and find slightly over 1000 reads supporting a novel exon skipping at chr2:190984393-190986854. After extracting the data to the root fortuna folder, use the following commands.
  
 ``` 
 cd sample
@@ -74,7 +77,7 @@ File cnt.tsv contains signature counts in the format documented below. An exampl
 ```
 223832|223833|223836|   2274
 ``` 
-The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. The IDs of the subexons are taken from the input GTF file sample.rg.gtf.
+The above example implies that a signature comprised of subexons 223832, 223833, and 223836 has a count of 2274. The IDs of the subexons are taken from the input GTF file sample.rg.gtf (NodeId field). Note that the GTF file has been pre-processed using ``` bin/processGTF.sh ``` script.
 
 File alt.tsv contains novel splicing information. To obtain the information regarding the previously mentioned novel exon skipping, use the following command.
 ```
@@ -84,10 +87,16 @@ The result should be:
 ```
 chr2 190984393 190986854 NM_007315.3,NM_139266.2,XM_006712718.1,XM_017004783.2,XR_001738914.2,XR_001738915.2 Locus_18066 ES 1256
 ```
-which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3, NM_139266.2, XM_006712718.1, XM_017004783.2, XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon IDs in the cnt.tsv file, chromosome, gene, and transcript IDs are taken from the input GTF file.
+which means that on chromosome 2 there exists a novel intron between coordinates 190984393 and 190986854 on gene Locus_18066 that is a novel exon skipping with regards to transcripts NM_007315.3, NM_139266.2, XM_006712718.1, XM_017004783.2, XR_001738914.2, and XR_001738915.2 which is supported by 1256 reads. Just like subexon IDs in the cnt.tsv file, chromosome, gene (gene_id field), and transcript IDs (transcript_id field) are taken from the input GTF file.
 
 Below is an example sashimi plot of the novel exon skipping we generated using IGV.
 <img width="853" alt="sashimi" src="https://user-images.githubusercontent.com/37735817/208976495-17478028-b299-4f54-a6b2-1169f33e034b.png">
+
+
+## Download fortuna binaries
+Finally, precompiled fortuna binaries can be downloaded from the list below:
+- [Linux](https://github.com/canzarlab/fortuna/files/10284967/fortuna.zip),
+- [OSX]().
 
 
 

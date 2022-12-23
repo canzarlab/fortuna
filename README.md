@@ -22,7 +22,7 @@ Fortuna requires C++11 to run and CMake version >=2.8.12 to compile.
 
 Also, fortuna requires
 * zlib library (included in most UNIX distributions)
-* autoconf 2.69 (included in most UNIX distributions, OSX users may have to run ```brew install autoconf@2.69```)
+* autoconf 2.69 (included in most UNIX distributions, Mac OS users may have to run ```brew install autoconf@2.69```)
 
 Additional dependencies are included with fortuna, including
 * kallisto (https://github.com/pachterlab/kallisto)
@@ -31,7 +31,7 @@ Additional dependencies are included with fortuna, including
 
 ## Installation
 
-After cloning the repository, run the following commands in the fortuna folder
+After cloning the repository, run the following commands in the fortuna folder. Mac OS users may have to install autoconf 2.69 first, see Dependencies.
 
 ``` 
 mkdir build 

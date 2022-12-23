@@ -31,7 +31,14 @@ Additional dependencies are included with fortuna, including
 
 ## Installation
 
-After cloning the repository, run the following commands in the fortuna folder. Mac OS users may have to install autoconf 2.69 first, see Dependencies.
+Mac OS users may have to install autoconf 2.69 first (see Dependencies):
+
+```
+brew install autoconf@2.69
+PATH="/opt/homebrew/opt/autoconf@2.69/bin:$PATH“
+```
+
+After cloning the repository, run the following commands in the fortuna folder. 
 
 ``` 
 mkdir build 
